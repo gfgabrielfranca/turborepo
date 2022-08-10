@@ -23,6 +23,26 @@ const createTurbo = path.resolve(__dirname, "../dist/index.js");
 const testDir = path.join(__dirname, "../my-turborepo");
 const DEFAULT_JEST_TIMEOUT = 10000;
 
+const EXPECTED_HELP_MESSAGE = `
+"
+  Create a new Turborepo
+
+  Usage:
+    $ npx create-turbo [flags...] [<dir>]
+
+  If <dir> is not provided up front you will be prompted for it.
+
+  Flags:
+    --use-npm           Explicitly tell the CLI to bootstrap the app using npm
+    --use-pnpm          Explicitly tell the CLI to bootstrap the app using pnpm
+    --use-yarn          Explicitly tell the CLI to bootstrap the app using yarn
+    --no-install        Explicitly do not run the package manager's install command
+    --help, -h          Show this help message
+    --version, -v       Show the version of this script
+
+"
+`;
+
 describe("create-turbo cli", () => {
   beforeAll(() => {
     execSync("corepack disable", { stdio: "ignore" });
@@ -46,6 +66,11 @@ describe("create-turbo cli", () => {
     execSync("corepack enable", { stdio: "ignore" });
 
     // clean up after the whole test suite just in case any excptions prevented beforeEach callback from running
+    cleanupTestDir();
+  });
+
+  beforeEach(() => {
+    // cleanup before each test case in case the previous test timed out.
     cleanupTestDir();
   });
 
@@ -132,10 +157,10 @@ describe("create-turbo cli", () => {
       expect(getGeneratedPackageJSON().packageManager).toMatch(/^npm/);
 
       expect(fs.existsSync(path.join(testDir, "node_modules"))).toBe(true);
-    }, 30000);
+    }, 50000);
 
     PACKAGE_MANAGERS.forEach((packageManager) => {
-      it(`--use-${packageManager}: guides the user through the process`, async () => {
+      it(`--use-${packageManager}`, async () => {
         const cli = spawn("node", [createTurbo, `--use-${packageManager}`], {});
         const messages = await runInteractiveCLI(cli);
 
@@ -156,72 +181,31 @@ describe("create-turbo cli", () => {
         );
 
         expect(fs.existsSync(path.join(testDir, "node_modules"))).toBe(true);
-      }, 30000);
+      }, 50000);
     });
   });
 
-  describe("the --version flag", () => {
-    it("prints the current version", async () => {
+  describe("printing version", () => {
+    it("--version flag works", async () => {
       let { stdout } = await execFile("node", [createTurbo, "--version"]);
       expect(!!semver.valid(stdout.trim())).toBe(true);
     });
-  });
 
-  describe("the -v flag", () => {
-    it("prints the current version", async () => {
+    it("-v flag works", async () => {
       let { stdout } = await execFile("node", [createTurbo, "-v"]);
       expect(!!semver.valid(stdout.trim())).toBe(true);
     });
   });
 
-  describe("the --help flag", () => {
-    it("prints help info", async () => {
+  describe("printing help message", () => {
+    it("--help flag works", async () => {
       let { stdout } = await execFile("node", [createTurbo, "--help"]);
-
-      expect(stdout).toMatchInlineSnapshot(`
-        "
-          Create a new Turborepo
-
-          Usage:
-            $ npx create-turbo [flags...] [<dir>]
-
-          If <dir> is not provided up front you will be prompted for it.
-
-          Flags:
-            --use-npm           Explicitly tell the CLI to bootstrap the app using npm
-            --use-pnpm          Explicitly tell the CLI to bootstrap the app using pnpm
-            --use-yarn          Explicitly tell the CLI to bootstrap the app using yarn
-            --no-install        Explicitly do not run the package manager's install command
-            --help, -h          Show this help message
-            --version, -v       Show the version of this script
-
-        "
-      `);
+      expect(stdout).toMatchInlineSnapshot(EXPECTED_HELP_MESSAGE);
     });
-  });
 
-  describe("the -h flag", () => {
-    it("prints help info", async () => {
+    it("-h flag works", async () => {
       let { stdout } = await execFile("node", [createTurbo, "-h"]);
-      expect(stdout).toMatchInlineSnapshot(`
-        "
-          Create a new Turborepo
-
-          Usage:
-            $ npx create-turbo [flags...] [<dir>]
-
-          If <dir> is not provided up front you will be prompted for it.
-
-          Flags:
-            --use-npm           Explicitly tell the CLI to bootstrap the app using npm
-            --use-pnpm          Explicitly tell the CLI to bootstrap the app using pnpm
-            --use-yarn          Explicitly tell the CLI to bootstrap the app using yarn
-            --no-install        Explicitly do not run the package manager's install command
-            --help, -h          Show this help message
-            --version, -v       Show the version of this script
-
-        "
-      `);
+      expect(stdout).toMatchInlineSnapshot(EXPECTED_HELP_MESSAGE);
     });
   });
 });
