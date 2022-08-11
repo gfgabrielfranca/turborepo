@@ -99,6 +99,16 @@ describe("create-turbo cli", () => {
         /^>>> Bootstrapped a new turborepo with the following:/
       );
 
+      expect(
+        messages.find((msg) =>
+          msg.match(
+            new RegExp(
+              `>>> Success! Created a new Turborepo at "${DEFAULT_APP_NAME}"`
+            )
+          )
+        )
+      ).toBeTruthy();
+
       expect(getGeneratedPackageJSON().packageManager).toMatch(/^npm/);
 
       expect(fs.existsSync(path.join(testDir, "node_modules"))).toBe(false);
@@ -124,6 +134,16 @@ describe("create-turbo cli", () => {
         expect(messages[2]).toMatch(
           /^>>> Bootstrapped a new turborepo with the following:/
         );
+
+        expect(
+          messages.find((msg) =>
+            msg.match(
+              new RegExp(
+                `>>> Success! Created a new Turborepo at "${DEFAULT_APP_NAME}"`
+              )
+            )
+          )
+        ).toBeTruthy();
 
         expect(getGeneratedPackageJSON().packageManager).toMatch(
           new RegExp(`^${packageManager}`)
@@ -154,6 +174,16 @@ describe("create-turbo cli", () => {
         /^>>> Creating a new turborepo with the following:/
       );
 
+      expect(
+        messages.find((msg) =>
+          msg.match(
+            new RegExp(
+              `>>> Success! Created a new Turborepo at "${DEFAULT_APP_NAME}"`
+            )
+          )
+        )
+      ).toBeTruthy();
+
       expect(getGeneratedPackageJSON().packageManager).toMatch(/^npm/);
 
       expect(fs.existsSync(path.join(testDir, "node_modules"))).toBe(true);
@@ -175,6 +205,16 @@ describe("create-turbo cli", () => {
         expect(messages[2]).toMatch(
           /^>>> Creating a new turborepo with the following:/
         );
+
+        expect(
+          messages.find((msg) =>
+            msg.match(
+              new RegExp(
+                `>>> Success! Created a new Turborepo at "${DEFAULT_APP_NAME}"`
+              )
+            )
+          )
+        ).toBeTruthy();
 
         expect(getGeneratedPackageJSON().packageManager).toMatch(
           new RegExp(`^${packageManager}`)
